@@ -63,7 +63,7 @@ namespace StageManager
             {
                 string title = Path.GetFileNameWithoutExtension(filesXX);
                 var waveStream = File.OpenRead(filesXX);
-                PlayAudioItem pi = new PlayAudioItem(waveStream, title, true);
+                PlayAudioItem pi = new PlayAudioItem(waveStream, title);
                 soundCues.AddPlayItem(pi);
             }
 
@@ -71,13 +71,9 @@ namespace StageManager
             {
                 string title = Path.GetFileNameWithoutExtension(file);
                 var waveStream = File.OpenRead(file);
-                PlayAudioItem pi = new PlayAudioItem(waveStream, title, false);
+                PlayAudioItem pi = new PlayAudioItem(waveStream, title);
                 soundCues.AddPlayItem(pi);
             }
-        }
-        private void tsbtnStop_Click(object sender, EventArgs e)
-        {
-            soundCues.Stop();
         }
         private void tsbtnTwoSecondFade_Click(object sender, EventArgs e)
         {
@@ -97,31 +93,5 @@ namespace StageManager
         {
             soundCues.Reset();
         }
-        private void tsbFlockOfTigers_Click(object sender, EventArgs e)
-        {
-            ReadInSounds("Flock of Tigers");
-            lblLoading.Visible = true;
-            this.Refresh();
-            this.scriptViewer1.ReadExcelFile(@"Flock of Tigers", @"AFlockofTigers.xlsx");
-            lblLoading.Visible = false;
-        }
-
-        private void tsbRedHanded_Click(object sender, EventArgs e)
-        {
-            lblLoading.Visible = true;
-            ReadInSounds("Red-Handed");
-            lblLoading.Visible = true;
-            {
-                this.Refresh();
-                this.scriptViewer1.ReadExcelFile(@"Red-Handed", @"RedHanded.xlsx");
-            }
-            lblLoading.Visible = false;
-        }
-
-        private void tsbtnStopContinuous_Click(object sender, EventArgs e)
-        {
-            soundCues.StopContinuous();
-        }
-
     }
 }

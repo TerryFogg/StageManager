@@ -44,7 +44,7 @@ namespace StageManager
         private WaveStream _reader;
         private readonly Timer _timer = new Timer();
 
-        public PlayAudioItem(System.IO.Stream stream, string Title, bool IsContinuous)
+        public PlayAudioItem(System.IO.Stream stream, string Title )
         {
             IsPlaying = false;
             PlayingOrPlayed = false;
@@ -52,7 +52,6 @@ namespace StageManager
 
             DoubleBuffered = true;
             Cursor = Cursors.Hand;
-            continousPlayItem = IsContinuous;
             if (DesignMode)
             {
                 Caption = "01. Audio Cue One";
@@ -126,19 +125,6 @@ namespace StageManager
             set
             {
                 _caption = value;
-                Invalidate();
-            }
-        }
-
-        /// <summary>
-        /// 0.0 to 1.0
-        /// </summary>
-        public float Progress
-        {
-            get => _progress;
-            set
-            {
-                _progress = Math.Max(0f, Math.Min(1f, value));
                 Invalidate();
             }
         }
