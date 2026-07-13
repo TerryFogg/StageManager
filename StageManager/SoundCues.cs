@@ -34,19 +34,5 @@ namespace StageManager
         {
             flowLayoutPanel1.Controls.Clear();
         }
-
-        internal void Stop()
-        {
-            foreach (object c in flowLayoutPanel1.Controls)
-            {
-                if (c is PlayAudioItem playAudioItem)
-                {
-                    if (!playAudioItem.continousPlayItem)
-                    {
-                        playAudioItem.StopAudio();
-                    }
-                }
-            }
-        }
     }
 }

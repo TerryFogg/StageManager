@@ -12,6 +12,7 @@ using NAudio.Wave;
 namespace StageManager
 {
     using NAudio.Wave;
+    using NAudio.Wave.SampleProviders;
     using System;
     using System.Drawing;
     using System.Drawing.Drawing2D;
@@ -30,7 +31,7 @@ namespace StageManager
         private const int RingDiameter = 50;
         private const int PlaySize = 16;
         private const int StopSize = 14;
-        public bool continousPlayItem { get; set; }
+        //public bool continousPlayItem { get; set; }
         private bool PlayingOrPlayed { get; set; }
         private WaveFileReader waveReader { get; set; }
         private WaveOutEvent outputDevice { get; set; }
@@ -42,16 +43,31 @@ namespace StageManager
         private const float FractionReductionFor5SecondFade = 1/50f; // 5 seconds / 100 ms per tick
         private FadeType currentFadeType;
         private WaveStream _reader;
+
+
+        private AudioFileReader audioFile;
+        private FadeInOutSampleProvider fadeProvider;
+
+
         private readonly Timer _timer = new Timer();
 
-        public PlayAudioItem(System.IO.Stream stream, string Title )
+        private float fadeStartVolume;
+        public PlayAudioItem(System.IO.Stream stream, string Title)
         {
+            InitializeComponent();
             IsPlaying = false;
             PlayingOrPlayed = false;
             BackColor = Color.Green;
 
             DoubleBuffered = true;
             Cursor = Cursors.Hand;
+
+
+            audioFile = new AudioFileReader(fileName);
+
+            fadeProvider = new FadeInOutSampleProvider(audioFile, true);
+
+
             if (DesignMode)
             {
                 Caption = "01. Audio Cue One";
@@ -62,6 +78,12 @@ namespace StageManager
                 Caption = Title;
             }
 
+            modernVolumeSlider1.ValueChanged += (s, e) =>
+            {
+
+                float vol = modernVolumeSlider1.Value / 100f;
+                outputDevice.Volume = vol;
+            };
             waveReader = new WaveFileReader(stream);
             outputDevice = new WaveOutEvent();
             outputDevice.Init(waveReader);
@@ -74,11 +96,10 @@ namespace StageManager
             _timer.Start();
 
         }
-
         public void FadeAudio(FadeType fadeType)
         {
-
             currentFadeType = fadeType;
+            fadeStartVolume = CurrentVolume;
             CurrentFractionReduction = 1.0f;
             FadeTimer.Interval = TimerTick;
             FadeTimer.Start();
@@ -101,7 +122,7 @@ namespace StageManager
                     break;
             }
 
-            float newVolume = CurrentFractionReduction;
+            float newVolume = fadeStartVolume * CurrentFractionReduction; 
 
             // Allow 0.1f as the minimum volume to avoid floating-point precision issues.
             // If the volume is less than or equal to 0.1f, stop the timer and reset the volume to 1.0f.
@@ -112,8 +133,8 @@ namespace StageManager
             else
             {
                 FadeTimer.Stop();
+                CurrentVolume = 0f;
                 StopAudio();
-                CurrentVolume = 1.0f;
             }
         }
 
@@ -149,10 +170,35 @@ namespace StageManager
             PlayingOrPlayed = true;
             BackColor = Color.Cyan;
             // Stop any currently playing audio item
-            outputDevice.Volume = 1.0f;
+            outputDevice.Volume = modernVolumeSlider1.Value / 100f;
             waveReader.Position = 0;
             outputDevice.Play();
         }
+
+        public void FadeAudio2(FadeType fadeType)
+        {
+            int duration =
+                fadeType == FadeType.TwoSecondFade
+                ? 2000
+                : 5000;
+
+            fadeProvider.BeginFadeOut(duration);
+
+            Task.Run(async () =>
+            {
+                await Task.Delay(duration);
+
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(StopAudio));
+                }
+                else
+                {
+                    StopAudio();
+                }
+            });
+        }
+
 
         public void StopAudio()
         {

@@ -51,6 +51,7 @@
             this.Name = "ScriptViewer";
             this.Size = new System.Drawing.Size(627, 457);
             this.Load += new System.EventHandler(this.ScriptViewer_Load);
+            this.Resize += new System.EventHandler(this.ScriptViewer_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 

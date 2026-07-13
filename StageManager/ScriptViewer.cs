@@ -134,5 +134,10 @@ namespace StageManager
             grid.ResumeLayout();
 
         }
+
+        private void ScriptViewer_Resize(object sender, EventArgs e)
+        {
+            dataGridView1.PerformLayout();
+        }
     }
 }
